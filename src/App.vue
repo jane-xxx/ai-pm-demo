@@ -35,8 +35,6 @@ import ProjectDetail from './components/project/ProjectDetail.vue'
 import ConfigPanel from './components/common/ConfigPanel.vue'
 import { projectStore } from './stores/projectStore'
 
-const projectStore = projectStore
-
 const currentTab = ref<AppTab>('new_project')
 const currentProjectDetail = ref<Project | null>(null)
 

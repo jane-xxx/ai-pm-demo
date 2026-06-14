@@ -26,7 +26,6 @@ import { agentStore } from '@/stores/agentStore'
 import { AGENTS, type AgentType, type AgentStatus } from '@/types'
 import ProgressNode from './ProgressNode.vue'
 
-const agentStore = agentStore
 const agentTypes = computed(() => AGENTS.map(a => a.type))
 const currentAgent = computed(() => agentStore.currentAgent)
 

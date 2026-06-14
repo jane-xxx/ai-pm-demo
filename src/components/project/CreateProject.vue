@@ -51,7 +51,7 @@ const form = reactive({
 
 const isExecuting = ref(false)
 
-function startExecution() {
+async function startExecution() {
   const project = projectStore.createProject({
     name: form.name,
     description: form.description,
@@ -61,6 +61,9 @@ function startExecution() {
   agentStore.initPipeline(project.id)
 
   isExecuting.value = true
+
+  // 自动执行第一个agent
+  await agentStore.executeCurrent(project.id, project.description)
 }
 </script>
 

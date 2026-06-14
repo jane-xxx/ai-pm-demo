@@ -49,8 +49,13 @@ async function handleExecute() {
   await agentStore.executeCurrent(project.id, project.description)
 }
 
-function handleConfirm() {
+async function handleConfirm() {
   agentStore.confirmCurrent()
+  // 确认后自动执行下一个agent
+  const project = projectStore.currentProject
+  if (project && agentStore.hasMoreAgents) {
+    await agentStore.executeCurrent(project.id, project.description)
+  }
 }
 
 function handleSkip() {

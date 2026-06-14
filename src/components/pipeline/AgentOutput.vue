@@ -30,7 +30,6 @@ import { markdownService } from '@/services/markdownService'
 import { AGENTS } from '@/types'
 import { formatDate } from '@/utils/helpers'
 
-const agentStore = agentStore
 const currentExecution = computed(() => agentStore.currentExecution)
 
 const renderedContent = computed(() => {

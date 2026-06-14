@@ -33,9 +33,6 @@ import { computed } from 'vue'
 import { projectStore } from '@/stores/projectStore'
 import { agentStore } from '@/stores/agentStore'
 
-const projectStore = projectStore
-const agentStore = agentStore
-
 const currentExecution = computed(() => agentStore.currentExecution)
 const isExecuting = computed(() => agentStore.isExecuting)
 const hasOutput = computed(() => currentExecution.value?.output && !currentExecution.value.output.isConfirmed)

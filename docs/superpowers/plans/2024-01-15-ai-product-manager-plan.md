@@ -77,7 +77,6 @@ pm-demo/
 - Create: `package.json`
 - Create: `vite.config.ts`
 - Create: `tsconfig.json`
-- Create: `tailwind.config.js`
 - Create: `index.html`
 
 - [ ] **Step 1: 创建 package.json**
@@ -103,9 +102,7 @@ cat > package.json << 'EOF'
     "typescript": "^5.3.0",
     "vite": "^5.0.0",
     "vue-tsc": "^1.8.0",
-    "tailwindcss": "^3.4.0",
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0"
+    "less": "^4.2.0"
   }
 }
 EOF
@@ -182,61 +179,7 @@ cat > tsconfig.node.json << 'EOF'
 EOF
 ```
 
-- [ ] **Step 5: 创建 tailwind.config.js**
-
-```bash
-cat > tailwind.config.js << 'EOF'
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {
-      colors: {
-        'tech-bg': '#0f172a',
-        'tech-blue': '#3b82f6',
-        'tech-purple': '#8b5cf6',
-        'tech-green': '#10b981',
-        'tech-red': '#ef4444',
-        'tech-gray': '#64748b',
-      },
-      animation: {
-        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-        'flow': 'flow 2s linear infinite',
-      },
-      keyframes: {
-        'pulse-glow': {
-          '0%, 100%': { opacity: '1', boxShadow: '0 0 20px #3b82f6' },
-          '50%': { opacity: '0.7', boxShadow: '0 0 40px #3b82f6' },
-        },
-        'flow': {
-          '0%': { backgroundPosition: '0% 50%' },
-          '100%': { backgroundPosition: '100% 50%' },
-        },
-      },
-    },
-  },
-  plugins: [],
-}
-EOF
-```
-
-- [ ] **Step 6: 创建 postcss.config.js**
-
-```bash
-cat > postcss.config.js << 'EOF'
-export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-EOF
-```
-
-- [ ] **Step 7: 创建 index.html**
+- [ ] **Step 5: 创建 index.html**
 
 ```bash
 cat > index.html << 'EOF'
@@ -267,11 +210,11 @@ cat > index.html << 'EOF'
 EOF
 ```
 
-- [ ] **Step 8: 提交初始化配置**
+- [ ] **Step 6: 提交初始化配置**
 
 ```bash
-git add package.json vite.config.ts tsconfig.json tsconfig.node.json tailwind.config.js postcss.config.js index.html
-git commit -m "feat: initialize project with Vue3 + Vite + TypeScript + Tailwind"
+git add package.json vite.config.ts tsconfig.json tsconfig.node.json index.html
+git commit -m "feat: initialize project with Vue3 + Vite + TypeScript + Less"
 ```
 
 ---
@@ -3653,10 +3596,6 @@ EOF
 ```bash
 mkdir -p src/styles
 cat > src/styles/theme.css << 'EOF'
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* 主题样式 */
 :root {
   --color-bg: #0f172a;
@@ -3713,31 +3652,19 @@ body {
 EOF
 ```
 
-- [ ] **Step 4: 创建全局样式入口**
-
-```bash
-cat > src/styles/index.css << 'EOF'
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import './theme.css';
-EOF
-```
-
-- [ ] **Step 5: 更新 main.ts 使用正确的样式入口**
+- [ ] **Step 4: 更新 main.ts 导入样式**
 
 ```bash
 cat > src/main.ts << 'EOF'
 import { createApp } from 'vue'
 import App from './App.vue'
-import './styles/index.css'
+import './styles/theme.css'
 
 createApp(App).mount('#app')
 EOF
 ```
 
-- [ ] **Step 6: 提交主应用组件**
+- [ ] **Step 5: 提交主应用组件
 
 ```bash
 git add src/App.vue src/main.ts src/styles/

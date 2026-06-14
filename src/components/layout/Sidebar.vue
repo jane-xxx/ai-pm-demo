@@ -39,7 +39,6 @@ defineEmits<{
 const tabs = [
   { key: 'new_project' as AppTab, icon: '✨', label: '新建项目' },
   { key: 'project_management' as AppTab, icon: '📁', label: '项目管理' },
-  { key: 'settings' as AppTab, icon: '⚙️', label: '设置' },
 ]
 </script>
 

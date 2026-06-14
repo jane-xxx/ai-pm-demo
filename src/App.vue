@@ -19,7 +19,6 @@
         @back="handleBackFromDetail"
       />
 
-      <ConfigPanel v-else-if="currentTab === 'settings'" />
     </MainContent>
   </div>
 </template>
@@ -32,7 +31,6 @@ import MainContent from './components/layout/MainContent.vue'
 import CreateProject from './components/project/CreateProject.vue'
 import ProjectList from './components/project/ProjectList.vue'
 import ProjectDetail from './components/project/ProjectDetail.vue'
-import ConfigPanel from './components/common/ConfigPanel.vue'
 import { projectStore } from './stores/projectStore'
 
 const currentTab = ref<AppTab>('new_project')

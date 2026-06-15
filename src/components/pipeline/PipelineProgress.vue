@@ -7,15 +7,13 @@
         :agent-type="agentType"
         :status="getNodeStatus(agentType, index)"
         :is-current="isCurrentNode(index)"
+        :has-output="hasAgentOutput(agentType)"
+        :is-selected="selectedAgent === agentType"
+        @click="handleNodeClick"
       />
     </div>
     <div class="progress-info">
-      <span v-if="currentAgent" class="current-agent">
-        正在执行: {{ getAgentName(currentAgent) }}
-      </span>
-      <span v-else class="progress-complete">
-        🎉 管道执行完成
-      </span>
+      <!-- 移除执行状态文案 -->
     </div>
   </div>
 </template>
@@ -25,6 +23,14 @@ import { computed } from 'vue'
 import { agentStore } from '@/stores/agentStore'
 import { AGENTS, type AgentType, type AgentStatus } from '@/types'
 import ProgressNode from './ProgressNode.vue'
+
+const props = defineProps<{
+  selectedAgent?: AgentType | null
+}>()
+
+const emit = defineEmits<{
+  'select-agent': [agentType: AgentType]
+}>()
 
 const agentTypes = computed(() => AGENTS.map(a => a.type))
 const currentAgent = computed(() => agentStore.currentAgent)
@@ -41,8 +47,17 @@ function isCurrentNode(index: number): boolean {
   return agentStore.executions[index]?.status === 'running'
 }
 
+function hasAgentOutput(agentType: AgentType): boolean {
+  const execution = agentStore.executions.find(e => e.agentType === agentType)
+  return !!execution?.output
+}
+
 function getAgentName(agentType: AgentType): string {
   return AGENTS.find(a => a.type === agentType)?.name || agentType
+}
+
+function handleNodeClick(agentType: AgentType) {
+  emit('select-agent', agentType)
 }
 </script>
 

@@ -7,9 +7,8 @@
 <style scoped>
 .main-content {
   flex: 1;
-  height: 100vh;
   overflow-y: auto;
-  background: #0f172a;
+  background: linear-gradient(180deg, #0F111A 0%, #1A1F2E 100%);
 }
 
 .main-content::-webkit-scrollbar {
@@ -17,11 +16,11 @@
 }
 
 .main-content::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #1A1F2E;
 }
 
 .main-content::-webkit-scrollbar-thumb {
-  background: #3b82f6;
+  background: #6366F1;
   border-radius: 3px;
 }
 </style>

@@ -10,6 +10,7 @@ class AgentStore {
     executions: [] as AgentExecution[],
     isExecuting: false,
     currentAgentIndex: 0,
+    viewingAgent: null as AgentType | null, // 用于查看历史输出，但不影响执行流程
   })
 
   get executions() {
@@ -46,6 +47,52 @@ class AgentStore {
     }
   }
 
+  get viewingAgent() {
+    return this.state.viewingAgent
+  }
+
+  // 获取当前应该显示的执行结果
+  // 优先显示正在运行的，其次显示查看的历史，然后显示当前agent
+  // 最后如果 pipeline 完成，显示已完成的 PRD
+  get displayExecution() {
+    const running = this.state.executions.find(e => e.status === 'running')
+    if (running) return running
+
+    if (this.state.viewingAgent) {
+      return this.state.executions.find(e => e.agentType === this.state.viewingAgent)
+    }
+
+    // 如果当前 agent 为 null（pipeline 已完成），返回 PRD execution
+    if (!this.currentAgent) {
+      const prdExecution = this.state.executions.find(e => e.agentType === 'prd')
+      if (prdExecution?.output?.isConfirmed) {
+        return prdExecution
+      }
+    }
+
+    return this.currentExecution
+  }
+
+  // 检查某个agent是否已完成（可点击查看）
+  canViewAgent(agentType: AgentType): boolean {
+    const execution = this.state.executions.find(e => e.agentType === agentType)
+    return execution?.status === 'completed'
+  }
+
+  // 设置查看历史agent
+  setViewingAgent(agentType: AgentType | null): void {
+    if (agentType && this.canViewAgent(agentType)) {
+      this.state.viewingAgent = agentType
+    } else {
+      this.state.viewingAgent = null
+    }
+  }
+
+  // 重置查看状态（回到当前agent）
+  resetViewingAgent(): void {
+    this.state.viewingAgent = null
+  }
+
   // 初始化管道
   initPipeline(projectId: string): void {
     this.state.executions = AGENT_PIPELINE.map(agentType => ({
@@ -58,6 +105,7 @@ class AgentStore {
   // 执行当前Agent
   async executeCurrent(projectId: string, input: string): Promise<AgentOutput | null> {
     const agent = this.currentAgent
+    console.log('executeCurrent 开始:', { agent, currentAgentIndex: this.state.currentAgentIndex })
     if (!agent) return null
 
     const execution = this.state.executions.find(e => e.agentType === agent)
@@ -81,11 +129,42 @@ class AgentStore {
       // 保存到存储
       storageService.saveAgentOutput(output)
 
+      // 如果是 PRD agent，自动确认输出
+      if (agent === 'prd' && output.content) {
+        output.isConfirmed = true
+        storageService.saveAgentOutput(output)
+        console.log('✅ PRD 输出已自动确认')
+
+        // 保存 PRD 内容到项目
+        console.log('🎯 PRD agent 执行完成，开始保存...', { projectId, contentLength: output.content.length })
+        // 从所有项目中找到目标项目并更新
+        const targetProject = projectStore.projects.find(p => p.id === projectId)
+        if (targetProject) {
+          targetProject.prdContent = output.content
+          targetProject.status = 'completed'
+          projectStore.updateProject(targetProject)
+          // 同时直接更新存储，确保数据同步
+          storageService.saveProject(targetProject)
+          console.log('✅ PRD 自动保存成功:', targetProject.name, 'PRD长度:', targetProject.prdContent?.length)
+        } else {
+          console.error('❌ 找不到项目:', projectId, '可用项目:', projectStore.projects.map(p => p.id))
+        }
+
+        // PRD 完成后递增 index，标志 pipeline 完成
+        this.state.currentAgentIndex++
+        console.log('✅ Pipeline 已完成，currentAgentIndex 递增为:', this.state.currentAgentIndex)
+      }
+
       // 更新项目进度
       const project = projectStore.currentProject
       if (project) {
         project.currentStep = this.state.currentAgentIndex + 1
-        project.status = 'in_progress'
+        // 如果不是最后一个 agent，状态为 in_progress；如果是 PRD 且已确认，状态为 completed
+        if (agent === 'prd' && output.isConfirmed) {
+          project.status = 'completed'
+        } else {
+          project.status = 'in_progress'
+        }
         projectStore.updateProject(project)
       }
 
@@ -119,10 +198,17 @@ class AgentStore {
     const execution = this.currentExecution
     if (!execution) return null
 
-    // 重置状态
-    execution.status = 'pending'
-    execution.error = undefined
-    execution.output = undefined
+    // 对于 PRD，保留之前的输出，只重置 isConfirmed 状态
+    if (execution.agentType === 'prd' && execution.output?.content) {
+      execution.output.isConfirmed = false
+      storageService.saveAgentOutput(execution.output)
+      // 仍然执行生成，会更新 content
+    } else {
+      // 其他 agent，完全重置状态
+      execution.status = 'pending'
+      execution.error = undefined
+      execution.output = undefined
+    }
 
     return this.executeCurrent(projectId, input)
   }
@@ -149,8 +235,11 @@ class AgentStore {
       }
     })
 
-    // 找到第一个未完成的Agent
-    const firstIncomplete = this.state.executions.findIndex(e => e.status !== 'completed')
+    // 找到第一个未完成（未确认）的Agent
+    // 判断条件：状态不是 completed，或者输出存在但未确认
+    const firstIncomplete = this.state.executions.findIndex(e =>
+      e.status !== 'completed' || (e.output && !e.output.isConfirmed)
+    )
     this.state.currentAgentIndex = firstIncomplete >= 0 ? firstIncomplete : AGENT_PIPELINE.length
   }
 }

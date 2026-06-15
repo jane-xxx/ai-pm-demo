@@ -48,15 +48,16 @@ import { ref, computed } from 'vue'
 import { projectStore } from '@/stores/projectStore'
 import { agentStore } from '@/stores/agentStore'
 import { markdownService } from '@/services/markdownService'
+import type { Project } from '@/types'
 
-const projectStore = projectStore
-const agentStore = agentStore
+const props = defineProps<{
+  project: Project
+}>()
 
 const isEditing = ref(false)
 const editContent = ref('')
 
-const currentProject = computed(() => projectStore.currentProject)
-const prdContent = computed(() => currentProject.value?.prdContent || generatePRD())
+const prdContent = computed(() => props.project.prdContent || generatePRD())
 
 const renderedContent = computed(() => {
   return markdownService.render(prdContent.value)
@@ -75,11 +76,9 @@ function generatePRD(): string {
 }
 
 function handleSave() {
-  if (currentProject.value) {
-    currentProject.value.prdContent = editContent.value
-    projectStore.updateProject(currentProject.value)
-    isEditing.value = false
-  }
+  props.project.prdContent = editContent.value
+  projectStore.updateProject(props.project)
+  isEditing.value = false
 }
 
 function handleCancel() {
@@ -92,11 +91,12 @@ function handleExport() {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `${currentProject.value?.name || 'PRD'}.md`
+  a.download = `${props.project.name || 'PRD'}.md`
   a.click()
   URL.revokeObjectURL(url)
 }
 
+// 初始化编辑内容
 editContent.value = prdContent.value
 </script>
 

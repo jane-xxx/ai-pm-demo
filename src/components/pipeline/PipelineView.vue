@@ -1,41 +1,36 @@
 <template>
   <div class="pipeline-view">
-    <h2 class="page-title">🔮 需求管道执行</h2>
+    <!-- PipelineHeader (包含 TimelineFlow) -->
+    <PipelineHeader @view-agent="handleViewAgent" />
 
-    <PipelineProgress />
-
-    <AgentOutput />
-
-    <PipelineActions />
-
-    <CompletionSummary v-if="isCompleted" />
+    <div class="pipeline-content">
+      <AgentOutput />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { agentStore } from '@/stores/agentStore'
-import PipelineProgress from './PipelineProgress.vue'
+import type { AgentType } from '@/types'
+import PipelineHeader from './PipelineHeader.vue'
 import AgentOutput from './AgentOutput.vue'
-import PipelineActions from './PipelineActions.vue'
-import CompletionSummary from './CompletionSummary.vue'
 
-const isCompleted = computed(() => !agentStore.hasMoreAgents)
+function handleViewAgent(agentType: AgentType | null) {
+  // 这个函数不再需要，因为 PipelineHeader 内部处理
+  console.log('viewAgent:', agentType)
+}
 </script>
 
 <style scoped>
 .pipeline-view {
-  padding: 32px;
-  max-width: 1000px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: transparent;
 }
 
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 32px;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.pipeline-content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
 }
 </style>

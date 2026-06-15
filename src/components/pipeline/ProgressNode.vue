@@ -1,7 +1,8 @@
 <template>
   <div
     class="progress-node"
-    :class="[`status-${status}`, { 'is-current': isCurrent }]"
+    :class="[`status-${status}`, { 'is-current': isCurrent, 'is-clickable': hasOutput, 'is-selected': isSelected }]"
+    @click="handleClick"
   >
     <div class="node-icon">{{ icon }}</div>
     <div class="node-label">{{ label }}</div>
@@ -16,11 +17,23 @@ const props = defineProps<{
   agentType: AgentType
   status: AgentStatus
   isCurrent: boolean
+  hasOutput?: boolean
+  isSelected?: boolean
+}>()
+
+const emit = defineEmits<{
+  click: [agentType: AgentType]
 }>()
 
 const agent = computed(() => AGENTS.find(a => a.type === props.agentType))
 const icon = computed(() => agent.value?.icon || '⚪')
 const label = computed(() => agent.value?.name || props.agentType)
+
+function handleClick() {
+  if (props.hasOutput) {
+    emit('click', props.agentType)
+  }
+}
 </script>
 
 <style scoped>
@@ -71,6 +84,29 @@ const label = computed(() => agent.value?.name || props.agentType)
 
 .progress-node.is-current .node-icon {
   transform: scale(1.1);
+}
+
+/* 选中状态 - 放在最后以覆盖其他样式 */
+.progress-node.is-clickable {
+  cursor: pointer;
+}
+
+.progress-node.is-clickable:hover .node-icon {
+  transform: scale(1.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+.progress-node.is-selected .node-icon {
+  border-color: #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.7) !important;
+  transform: scale(1.15) !important;
+}
+
+.progress-node.is-selected .node-label {
+  color: #3b82f6 !important;
+  font-weight: 600;
 }
 
 @keyframes pulse-glow {

@@ -20,7 +20,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-  (e: 'tab-change', tab: ProjectDetailTab): void
+  'tab-change': [tab: ProjectDetailTab]
 }>()
 
 const tabs = [

@@ -5,9 +5,6 @@
     <p class="success-message">项目已保存到项目管理</p>
 
     <div class="completion-actions">
-      <button class="btn-action" @click="handleViewPRD">
-        查看PRD 📝
-      </button>
       <button class="btn-action" @click="handleGoToProjects">
         前往项目管理 📁
       </button>
@@ -22,7 +19,7 @@
 import { projectStore } from '@/stores/projectStore'
 
 const emit = defineEmits<{
-  (e: 'change-tab', tab: string): void
+  'change-tab': [tab: string]
 }>()
 
 function handleViewPRD() {

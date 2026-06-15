@@ -1,65 +1,36 @@
 <template>
   <div id="app" class="app-container">
-    <Sidebar
-      :current-tab="currentTab"
-      @change-tab="handleTabChange"
-    />
+    <Sidebar :current-route="currentRoute" />
 
     <MainContent>
-      <CreateProject v-if="currentTab === 'new_project'" />
-
-      <ProjectList
-        v-else-if="currentTab === 'project_management'"
-        @view-project="handleViewProject"
-      />
-
-      <ProjectDetail
-        v-else-if="currentProjectDetail"
-        :project="currentProjectDetail"
-        @back="handleBackFromDetail"
-      />
-
+      <router-view />
     </MainContent>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { AppTab, Project } from '@/types'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import Sidebar from './components/layout/Sidebar.vue'
 import MainContent from './components/layout/MainContent.vue'
-import CreateProject from './components/project/CreateProject.vue'
-import ProjectList from './components/project/ProjectList.vue'
-import ProjectDetail from './components/project/ProjectDetail.vue'
-import { projectStore } from './stores/projectStore'
 
-const currentTab = ref<AppTab>('new_project')
-const currentProjectDetail = ref<Project | null>(null)
+const route = useRoute()
 
-function handleTabChange(tab: AppTab) {
-  currentTab.value = tab
-  if (tab !== 'project_management') {
-    currentProjectDetail.value = null
-  }
-}
-
-function handleViewProject(project: Project) {
-  currentProjectDetail.value = project
-  import('./stores/agentStore').then(({ agentStore }) => {
-    agentStore.loadAgentOutputs(project.id)
-  })
-}
-
-function handleBackFromDetail() {
-  currentProjectDetail.value = null
-}
+// 计算当前路由对应的 tab
+const currentRoute = computed(() => {
+  const path = route.path
+  if (path === '/') return 'create-project'
+  if (path.startsWith('/workspace')) return 'workspace'
+  if (path.startsWith('/projects')) return 'project-management'
+  return 'create-project'
+})
 </script>
 
 <style scoped>
 .app-container {
   display: flex;
   height: 100vh;
-  background: #0f172a;
+  background: #0F111A;
 }
 </style>
 
@@ -71,9 +42,9 @@ function handleBackFromDetail() {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  background: #0F111A;
+  color: #FFFFFF;
 }
 
 #app {
@@ -87,15 +58,15 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #1A1F2E;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3b82f6;
+  background: #6366F1;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: #6366F1;
 }
 </style>

@@ -1,15 +1,10 @@
 <template>
   <div class="pipeline-actions">
-    <!-- 初始执行按钮 -->
-    <button
-      v-if="canExecute && !hasOutput"
-      class="btn-action btn-primary"
-      :disabled="isExecuting"
-      @click="handleExecute"
-    >
-      <span class="btn-icon">{{ isExecuting ? '⏳' : '▶' }}</span>
-      {{ isExecuting ? '执行中...' : '开始执行' }}
-    </button>
+    <!-- 执行中提示 -->
+    <div v-if="isExecuting" class="executing-hint">
+      <span class="spinner"></span>
+      <span>AI 正在思考中...</span>
+    </div>
 
     <!-- 输出完成后的三按钮操作区 -->
     <template v-if="hasOutput && !isExecuting">
@@ -46,15 +41,20 @@
       </div>
     </div>
 
-    <!-- 错误重试按钮 -->
-    <button
-      v-if="hasError"
-      class="btn-action btn-danger"
-      @click="handleRetry"
-    >
-      <span class="btn-icon">🔄</span>
-      重试
-    </button>
+    <!-- 错误提示和重试 -->
+    <div v-if="hasError" class="error-message">
+      <div class="error-content">
+        <span class="error-icon">⚠️</span>
+        <div class="error-text">
+          <div class="error-title">执行出错</div>
+          <div class="error-desc">{{ currentExecution?.error || '请检查网络连接后重试' }}</div>
+        </div>
+      </div>
+      <button class="btn-action btn-danger" @click="handleRetry">
+        <span class="btn-icon">🔄</span>
+        重试
+      </button>
+    </div>
   </div>
 </template>
 
@@ -366,5 +366,75 @@ function handleRetry() {
 .supplement-actions .btn-action {
   padding: 10px 18px;
   font-size: 13px;
+}
+
+/* 执行中提示 */
+.executing-hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+  color: #E2E8F0;
+  font-size: 14px;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(99, 102, 241, 0.3);
+  border-top-color: #6366F1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 错误提示 */
+.error-message {
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+}
+
+.error-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.error-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.error-text {
+  flex: 1;
+}
+
+.error-title {
+  font-weight: 600;
+  color: #FCA5A5;
+  margin-bottom: 4px;
+}
+
+.error-desc {
+  font-size: 13px;
+  color: #F87171;
+  line-height: 1.4;
+}
+
+.error-message .btn-action {
+  width: 100%;
+  justify-content: center;
 }
 </style>

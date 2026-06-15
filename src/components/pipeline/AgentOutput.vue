@@ -34,15 +34,11 @@
             </button>
           </template>
 
-          <!-- 开始执行按钮 -->
-          <button
-            v-if="canExecute && !hasOutput && !isRunning"
-            class="header-btn btn-start"
-            @click="handleExecute"
-          >
-            <span class="btn-icon">▶</span>
-            开始执行
-          </button>
+          <!-- 等待执行提示 - 自动执行中 -->
+          <div v-if="canExecute && !hasOutput && !isRunning" class="waiting-badge">
+            <span class="waiting-dot"></span>
+            <span class="waiting-text">准备执行...</span>
+          </div>
         </div>
       </div>
 
@@ -709,6 +705,31 @@ onMounted(() => {
 .executing-text {
   font-size: 13px;
   color: #6366F1;
+  font-weight: 500;
+}
+
+/* 等待执行提示 */
+.waiting-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 20px;
+}
+
+.waiting-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94A3B8;
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+.waiting-text {
+  font-size: 13px;
+  color: #94A3B8;
   font-weight: 500;
 }
 
